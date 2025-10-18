@@ -5,13 +5,196 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DevTimeCapsule v2 — Package Analyzer</title>
-    <link rel="stylesheet" href="style.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .title-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 400;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 2rem;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            background: #ffffff;
+            color: #1a1a1a;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        textarea::placeholder {
+            color: #999;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #parseBtn {
+            background: linear-gradient(135deg, #797979 0%, #0c0c0c 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        #parseBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        #parseBtn:active {
+            transform: translateY(0);
+        }
+
+        .secondary-btn {
+            background: #e8e8e8;
+            color: #555;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .secondary-btn:hover {
+            background: #d8d8d8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        }
+
+        .secondary-btn:active {
+            transform: translateY(0);
+        }
+
+        #output {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            min-height: 100px;
+        }
+
+        #output:empty::before {
+            content: 'Analysis results will appear here...';
+            color: #999;
+            font-style: italic;
+        }
+
+        .icon {
+            width: 18px;
+            height: 18px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .input-section {
+                padding: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
     <main class="container">
         <header>
-            <h1>DevTimeCapsule v2</h1>
+            <h1>
+                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <path d="M9 3v18M3 9h18M3 15h18M15 3v18" />
+                </svg>
+                DevTimeCapsule v2
+            </h1>
             <p class="subtitle">Analyze and understand your project dependencies</p>
         </header>
 
@@ -19,16 +202,81 @@
             <label for="pkgInput" class="input-label">Paste your package.json:</label>
             <textarea id="pkgInput" placeholder='{ "name": "my-project", "dependencies": { ... } }'></textarea>
             <div class="button-group">
-                <button id="parseBtn">Analyze Dependencies</button>
-                <button class="secondary-btn" id="clearBtn">Clear</button>
-                <button class="secondary-btn" id="exampleBtn">Load Example</button>
+                <button id="parseBtn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                    Analyze Dependencies
+                </button>
+                <button class="secondary-btn" id="clearBtn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                    Clear
+                </button>
+                <button class="secondary-btn" id="exampleBtn">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                        <path d="M13 2v7h7" />
+                    </svg>
+                    Load Example
+                </button>
             </div>
         </section>
 
         <section id="output"></section>
     </main>
 
-    <script defer src="script.js"></script>
+    <script>
+        // Example functionality for demonstration
+        const pkgInput = document.getElementById('pkgInput');
+        const parseBtn = document.getElementById('parseBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const exampleBtn = document.getElementById('exampleBtn');
+        const output = document.getElementById('output');
+
+        const examplePackage = {
+            name: "example-project",
+            version: "1.0.0",
+            dependencies: {
+                "react": "^18.2.0",
+                "express": "^4.18.2",
+                "lodash": "^4.17.21"
+            },
+            devDependencies: {
+                "webpack": "^5.75.0",
+                "eslint": "^8.30.0"
+            }
+        };
+
+        parseBtn.addEventListener('click', () => {
+            try {
+                const pkg = JSON.parse(pkgInput.value);
+                const depCount = Object.keys(pkg.dependencies || {}).length;
+                const devDepCount = Object.keys(pkg.devDependencies || {}).length;
+
+                output.innerHTML = `
+                    <h2 style="color: #333; margin-bottom: 1rem;">Analysis Results</h2>
+                    <p style="color: #555;"><strong>Project:</strong> ${pkg.name || 'Unnamed'}</p>
+                    <p style="color: #555;"><strong>Dependencies:</strong> ${depCount}</p>
+                    <p style="color: #555;"><strong>Dev Dependencies:</strong> ${devDepCount}</p>
+                    <p style="color: #555; margin-top: 1rem;"><strong>Total Packages:</strong> ${depCount + devDepCount}</p>
+                `;
+            } catch (e) {
+                output.innerHTML = `<p style="color: #e74c3c;">❌ Invalid JSON. Please check your package.json format.</p>`;
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            pkgInput.value = '';
+            output.innerHTML = '';
+        });
+
+        exampleBtn.addEventListener('click', () => {
+            pkgInput.value = JSON.stringify(examplePackage, null, 2);
+        });
+    </script>
 </body>
 
 </html>
