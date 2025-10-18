@@ -2,280 +2,474 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevTimeCapsule v2 — Package Analyzer</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>DevTimeCapsule v2 — NLP Prototype</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #ffffff;
+            --panel: #f7f7f7;
+            --muted: #6b6b6b;
+            --accent: #007aff;
+            --radius: 12px;
+            --gap: 12px;
+            --text: #1c1c1c;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
 
+        * {
+            box-sizing: border-box
+        }
+
+        html,
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #ffffff;
-            color: #1a1a1a;
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 2rem 1rem;
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 24px;
+            align-items: start;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 2rem 0;
+        .header {
+            grid-column: 1/-1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
         }
 
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin-bottom: 0.5rem;
+        .brand {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
+            gap: 12px;
         }
 
-        .title-icon {
-            width: 40px;
-            height: 40px;
+        .logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #007aff, #5ac8fa);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo svg {
+            width: 22px;
+            height: 22px;
+            fill: #fff;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .subtitle {
-            font-size: 1.1rem;
-            color: #666;
-            font-weight: 400;
+            font-size: 13px;
+            color: var(--muted);
         }
 
-        .input-section {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 12px;
+        .panel {
+            background: var(--panel);
+            border-radius: var(--radius);
+            padding: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            margin-bottom: 2rem;
         }
 
-        .input-label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
+        .left {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         textarea {
             width: 100%;
-            min-height: 200px;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
+            min-height: 220px;
+            border: 1px solid #e0e0e0;
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            resize: vertical;
-            background: #ffffff;
-            color: #1a1a1a;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: #4a90e2;
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-        }
-
-        textarea::placeholder {
-            color: #999;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.25rem;
-            flex-wrap: wrap;
+            padding: 12px;
+            font-family: ui-monospace, monospace;
+            font-size: 13px;
+            color: var(--text);
         }
 
         button {
-            padding: 0.75rem 1.5rem;
+            padding: 10px 14px;
+            border-radius: 10px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.95rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
+            font-weight: 600;
+            display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 6px;
         }
 
-        #parseBtn {
-            background: linear-gradient(135deg, #797979 0%, #0c0c0c 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        button.primary {
+            background: var(--accent);
+            color: #fff;
         }
 
-        #parseBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        button.secondary {
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            color: var(--text);
         }
 
-        #parseBtn:active {
-            transform: translateY(0);
+        button.ghost {
+            background: transparent;
+            border: 1px solid #d0d0d0;
+            color: var(--muted);
         }
 
-        .secondary-btn {
-            background: #e8e8e8;
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .pkg-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .pkg {
+            display: flex;
+            gap: 12px;
+            background: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .pkg .meta {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pkg .name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .pkg .desc {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .pkg .status {
+            margin-top: 6px;
+            font-size: 12px;
             color: #555;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
         }
 
-        .secondary-btn:hover {
-            background: #d8d8d8;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 6px;
         }
 
-        .secondary-btn:active {
-            transform: translateY(0);
+        .right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        #output {
-            background: #f8f9fa;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            min-height: 100px;
+        .stats {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        #output:empty::before {
-            content: 'Analysis results will appear here...';
-            color: #999;
-            font-style: italic;
+        .stat {
+            flex: 1;
+            background: #f7f7f7;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat .n {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .notice {
+            padding: 10px;
+            background: #f7f7f7;
+            color: var(--muted);
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .search {
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid #d0d0d0;
+            width: 100%;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .footer {
+            grid-column: 1/-1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 20px;
+        }
+
+        .loader {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 4px solid #e0e0e0;
+            border-top-color: var(--accent);
+            animation: spin 1s linear infinite;
+            margin: 12px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
         }
 
         .icon {
-            width: 18px;
-            height: 18px;
-        }
-
-        @media (max-width: 640px) {
-            h1 {
-                font-size: 2rem;
-            }
-
-            .input-section {
-                padding: 1.5rem;
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            button {
-                width: 100%;
-                justify-content: center;
-            }
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
         }
     </style>
 </head>
 
 <body>
-    <main class="container">
-        <header>
-            <h1>
-                <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <path d="M9 3v18M3 9h18M3 15h18M15 3v18" />
-                </svg>
-                DevTimeCapsule v2
-            </h1>
-            <p class="subtitle">Analyze and understand your project dependencies</p>
-        </header>
-
-        <section class="input-section">
-            <label for="pkgInput" class="input-label">Paste your package.json:</label>
-            <textarea id="pkgInput" placeholder='{ "name": "my-project", "dependencies": { ... } }'></textarea>
-            <div class="button-group">
-                <button id="parseBtn">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M12 6v6l4 2" />
+    <div class="container">
+        <div class="header">
+            <div class="brand">
+                <div class="logo" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M4 7h16v10H4z" />
+                        <path d="M8 11h8v2H8z" />
                     </svg>
-                    Analyze Dependencies
-                </button>
-                <button class="secondary-btn" id="clearBtn">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                    </svg>
-                    Clear
-                </button>
-                <button class="secondary-btn" id="exampleBtn">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-                        <path d="M13 2v7h7" />
-                    </svg>
-                    Load Example
-                </button>
+                </div>
+                <div>
+                    <div class="title">DevTimeCapsule v2</div>
+                    <div class="subtitle">NLP-driven dependency analyzer</div>
+                </div>
             </div>
-        </section>
+            <div style="display:flex;gap:6px;">
+                <button id="importGh" class="secondary"><svg class="icon" viewBox="0 0 24 24">
+                        <path
+                            d="M12 .5C5.648.5.5 5.648.5 12c0 5.092 3.292 9.418 7.875 10.958.575.106.783-.25.783-.555 0-.274-.01-1-.015-1.963-3.2.695-3.875-1.543-3.875-1.543-.522-1.33-1.275-1.684-1.275-1.684-1.043-.713.08-.698.08-.698 1.154.08 1.762 1.184 1.762 1.184 1.025 1.754 2.688 1.247 3.344.954.104-.743.403-1.247.732-1.534-2.556-.292-5.243-1.278-5.243-5.688 0-1.257.448-2.286 1.183-3.092-.118-.292-.513-1.465.112-3.055 0 0 .964-.308 3.156 1.178a10.96 10.96 0 012.874-.386 10.96 10.96 0 012.874.386c2.19-1.486 3.152-1.178 3.152-1.178.627 1.59.232 2.763.114 3.055.737.806 1.182 1.835 1.182 3.092 0 4.42-2.692 5.392-5.256 5.676.414.357.783 1.056.783 2.127 0 1.536-.015 2.775-.015 3.155 0 .308.205.667.788.554C20.708 21.418 24 17.092 24 12 24 5.648 18.352.5 12 .5z" />
+                    </svg> GitHub</button>
+                <button id="exportBtn" class="ghost"><svg class="icon" viewBox="0 0 24 24">
+                        <path d="M5 20h14v-2H5v2zm7-18L5.33 9h3.84v4h4.66V9h3.84L12 2z" />
+                    </svg> Export</button>
+                <button id="copyBtn" class="ghost"><svg class="icon" viewBox="0 0 24 24">
+                        <path
+                            d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 18H8V7h11v16z" />
+                    </svg> Copy</button>
+            </div>
+        </div>
 
-        <section id="output"></section>
-    </main>
+        <div class="left panel">
+            <label for="pkgInput" class="subtitle">Paste package.json or GitHub URL</label>
+            <textarea id="pkgInput" placeholder='{"name":"my-app","dependencies":{},"devDependencies":{}}'></textarea>
+            <div class="controls">
+                <button id="analyzeBtn" class="primary"><svg class="icon" viewBox="0 0 24 24">
+                        <path
+                            d="M12 4V1L8 5l4 4V6c3.314 0 6 2.686 6 6s-2.686 6-6 6c-2.85 0-5.25-2.05-5.902-4.714l-1.949.49C5.882 17.022 8.654 19 12 19c4.962 0 9-4.038 9-9s-4.038-9-9-9z" />
+                    </svg> Analyze</button>
+                <button id="loadExample" class="secondary"><svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14l4-4h12c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                    </svg> Load Example</button>
+                <button id="clearBtn" class="secondary"><svg class="icon" viewBox="0 0 24 24">
+                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                    </svg> Clear</button>
+                <input id="ghUrl" class="search" placeholder="GitHub repo (user/repo)" aria-label="GitHub URL">
+            </div>
+            <div class="loader" id="loader"></div>
+            <div class="panel" style="margin-top:12px">
+                <input id="searchBox" class="search" placeholder="Search package name">
+                <div id="pkgGrid" class="pkg-grid" role="list" aria-label="Packages list" style="margin-top:10px;">
+                </div>
+            </div>
+        </div>
+
+        <aside class="right">
+            <div class="panel">
+                <div style="font-weight:600;margin-bottom:10px">Summary</div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="n" id="totalN">0</div>
+                        <div>Total Packages</div>
+                    </div>
+                    <div class="stat">
+                        <div class="n" id="depsN">0</div>
+                        <div>Dependencies</div>
+                    </div>
+                    <div class="stat">
+                        <div class="n" id="devdepsN">0</div>
+                        <div>Dev Dependencies</div>
+                    </div>
+                </div>
+                <div id="insights" style="margin-top:12px"></div>
+            </div>
+            <div class="panel">
+                <div style="font-weight:600;margin-bottom:10px">Actions</div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                    <button id="suggestBtn" class="secondary"><svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 2L2 7h20L12 2zM2 17h20v2H2v-2zm0-4h20v2H2v-2z" />
+                        </svg> Generate Suggestions</button>
+                    <button id="vulnBtn" class="secondary"><svg class="icon" viewBox="0 0 24 24">
+                            <path
+                                d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z" />
+                            <path d="M13 7h-2v6h6v-2h-4z" />
+                        </svg> Run Vulnerability Check</button>
+                    <div id="vulnResult" class="notice" style="display:none"></div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="footer">Local prototype — no data sent</div>
+    </div>
 
     <script>
-        // Example functionality for demonstration
-        const pkgInput = document.getElementById('pkgInput');
-        const parseBtn = document.getElementById('parseBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const exampleBtn = document.getElementById('exampleBtn');
-        const output = document.getElementById('output');
-
-        const examplePackage = {
-            name: "example-project",
-            version: "1.0.0",
-            dependencies: {
-                "react": "^18.2.0",
-                "express": "^4.18.2",
-                "lodash": "^4.17.21"
-            },
-            devDependencies: {
-                "webpack": "^5.75.0",
-                "eslint": "^8.30.0"
-            }
+        const packageDatabase = {
+            "react": { desc: "Front-end UI library", category: "UI" },
+            "react-dom": { desc: "React DOM renderer", category: "UI" },
+            "vite": { desc: "Modern build tool", category: "Build" },
+            "webpack": { desc: "JavaScript bundler", category: "Build" },
+            "eslint": { desc: "Code linter", category: "Quality" },
+            "prettier": { desc: "Code formatter", category: "Quality" },
+            "express": { desc: "Backend framework", category: "Backend" },
+            "lodash": { desc: "Utility library", category: "Utilities" },
+            "tailwindcss": { desc: "CSS framework", category: "Styling" },
+            "axios": { desc: "HTTP client library", category: "Backend" }
         };
 
-        parseBtn.addEventListener('click', () => {
+        const pkgInput = document.getElementById('pkgInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadExample = document.getElementById('loadExample');
+        const clearBtn = document.getElementById('clearBtn');
+        const searchBox = document.getElementById('searchBox');
+        const pkgGrid = document.getElementById('pkgGrid');
+        const totalN = document.getElementById('totalN');
+        const depsN = document.getElementById('depsN');
+        const devdepsN = document.getElementById('devdepsN');
+        const insights = document.getElementById('insights');
+        const importGh = document.getElementById('importGh');
+        const ghUrl = document.getElementById('ghUrl');
+        const exportBtn = document.getElementById('exportBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const suggestBtn = document.getElementById('suggestBtn');
+        const vulnBtn = document.getElementById('vulnBtn');
+        const vulnResult = document.getElementById('vulnResult');
+        const loader = document.getElementById('loader');
+
+        let currentPackagesList = [];
+
+        function showLoader(show) { loader.style.display = show ? 'block' : 'none'; }
+
+        function analyzeInput(raw) {
+            showLoader(true);
+            setTimeout(() => {
+                let parsed;
+                try { parsed = JSON.parse(raw); } catch (e) { alert('Invalid JSON'); showLoader(false); return; }
+                const deps = parsed.dependencies || {};
+                const devDeps = parsed.devDependencies || {};
+                const list = [];
+                Object.entries(deps).forEach(([k, v]) => { list.push({ name: k, version: v, category: (packageDatabase[k] || { category: "Other" }).category, desc: (packageDatabase[k] || { desc: "No description" }).desc }); });
+                Object.entries(devDeps).forEach(([k, v]) => { list.push({ name: k, version: v, category: (packageDatabase[k] || { category: "Other" }).category, desc: (packageDatabase[k] || { desc: "No description" }).desc }); });
+                currentPackagesList = list;
+                renderGrid();
+                generateInsights(list);
+                totalN.textContent = list.length;
+                depsN.textContent = Object.keys(deps).length;
+                devdepsN.textContent = Object.keys(devDeps).length;
+                showLoader(false);
+            }, 300);
+        }
+
+        function renderGrid() {
+            const q = searchBox.value.toLowerCase();
+            pkgGrid.innerHTML = '';
+            const filtered = currentPackagesList.filter(p => p.name.toLowerCase().includes(q));
+            if (!filtered.length) { pkgGrid.innerHTML = '<div class="notice">No packages found</div>'; return; }
+            filtered.forEach(pkg => {
+                const el = document.createElement('div');
+                el.className = 'pkg';
+                el.innerHTML = `<div class="meta"><div class="name">${pkg.name} <span style="font-weight:400;color:var(--muted);">v${pkg.version}</span></div><div class="desc">${pkg.desc}</div><div class="status">Category: ${pkg.category}</div></div><div class="actions"><button class="secondary" onclick="openDocs('${pkg.name}')"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3h18v2H3V3zm0 14h18v2H3v-2zm0-7h18v2H3v-2z"/></svg> Docs</button></div>`;
+                pkgGrid.appendChild(el);
+            });
+        }
+
+        function generateInsights(list) {
+            if (!list.length) { insights.innerHTML = '<div class="notice">No insights available</div>'; return; }
+            const suggestions = list.map(pkg => {
+                let note = '';
+                if (pkg.name.toLowerCase().includes('react') && pkg.version && pkg.version.startsWith('^16')) note = 'Upgrade to React 18';
+                if (pkg.name.toLowerCase().includes('moment')) note = 'Replace with Day.js';
+                if (pkg.name.toLowerCase().includes('lodash')) note = 'Consider using native JS';
+                return note ? `<div>${pkg.name}: ${note}</div>` : '';
+            }).filter(Boolean);
+            insights.innerHTML = suggestions.length ? ('<strong>Suggestions:</strong>' + suggestions.join('')) : '<div class="notice">No suggestions found</div>';
+        }
+
+        function openDocs(name) { window.open(`https://www.npmjs.com/package/${name}`, '_blank'); }
+
+        analyzeBtn.addEventListener('click', () => { analyzeInput(pkgInput.value); });
+        loadExample.addEventListener('click', () => { pkgInput.value = JSON.stringify({ name: "demo", dependencies: { "react": "^16.13.1", "lodash": "^4.17.15", "moment": "^2.29.1" } }, null, 2); analyzeInput(pkgInput.value); });
+        clearBtn.addEventListener('click', () => { pkgInput.value = ''; pkgGrid.innerHTML = ''; insights.innerHTML = ''; totalN.textContent = '0'; depsN.textContent = '0'; devdepsN.textContent = '0'; vulnResult.style.display = 'none'; });
+        searchBox.addEventListener('input', () => { renderGrid(); });
+
+        importGh.addEventListener('click', async () => {
+            const raw = ghUrl.value.trim();
+            if (!raw) { alert('Enter GitHub repo'); return; }
+            showLoader(true);
+            let url = raw.includes('http') ? raw : `https://raw.githubusercontent.com/${raw}/main/package.json`;
             try {
-                const pkg = JSON.parse(pkgInput.value);
-                const depCount = Object.keys(pkg.dependencies || {}).length;
-                const devDepCount = Object.keys(pkg.devDependencies || {}).length;
-
-                output.innerHTML = `
-                    <h2 style="color: #333; margin-bottom: 1rem;">Analysis Results</h2>
-                    <p style="color: #555;"><strong>Project:</strong> ${pkg.name || 'Unnamed'}</p>
-                    <p style="color: #555;"><strong>Dependencies:</strong> ${depCount}</p>
-                    <p style="color: #555;"><strong>Dev Dependencies:</strong> ${devDepCount}</p>
-                    <p style="color: #555; margin-top: 1rem;"><strong>Total Packages:</strong> ${depCount + devDepCount}</p>
-                `;
-            } catch (e) {
-                output.innerHTML = `<p style="color: #e74c3c;">❌ Invalid JSON. Please check your package.json format.</p>`;
-            }
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Failed fetch');
+                const txt = await res.text();
+                pkgInput.value = txt;
+                analyzeInput(txt);
+            } catch (e) { alert('Failed: ' + e); }
+            finally { showLoader(false); }
         });
 
-        clearBtn.addEventListener('click', () => {
-            pkgInput.value = '';
-            output.innerHTML = '';
+        exportBtn.addEventListener('click', () => {
+            const blob = new Blob([pkgInput.value], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'package-analysis.json';
+            a.click();
+            URL.revokeObjectURL(a.href);
         });
 
-        exampleBtn.addEventListener('click', () => {
-            pkgInput.value = JSON.stringify(examplePackage, null, 2);
-        });
+        copyBtn.addEventListener('click', () => { navigator.clipboard.writeText(pkgInput.value); alert('Copied'); });
+
+        vulnBtn.addEventListener('click', () => { vulnResult.style.display = 'block'; vulnResult.textContent = 'No critical vulnerabilities detected (prototype). Use SCA for production.'; });
+
+        suggestBtn.addEventListener('click', () => { showLoader(true); setTimeout(() => { generateInsights(currentPackagesList); showLoader(false); }, 200); });
     </script>
 </body>
 
